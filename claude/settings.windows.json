@@ -1,0 +1,130 @@
+{
+  "cleanupPeriodDays": 180,
+  "env": {
+    "CLAUDE_CODE_PLUGIN_DIRS": "C:\\Users\\civitamatteo\\.claude\\mods\\jev-router",
+    "CLAUDE_CODE_NO_FLICKER": "1"
+  },
+  "attribution": {
+    "commit": "",
+    "pr": ""
+  },
+  "permissions": {
+    "deny": [
+      "Read(./.env)",
+      "Read(./.env.*)",
+      "Read(**/.env)",
+      "Read(**/secrets/**)",
+      "Read(**/*.pem)",
+      "Read(**/*.key)",
+      "Bash(rm -rf *)",
+      "Bash(git push --force*)",
+      "Bash(git push -f *)",
+      "Bash(git reset --hard*)"
+    ],
+    "ask": [
+      "Bash(git push *)"
+    ]
+  },
+  "model": "sonnet",
+  "hooks": {
+    "Notification": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "[ -n \"$TERAX_TERMINAL\" ] && \"/c/Program Files/nodejs/node\" \"$HOME/.claude/hooks/terax-notify.js\" attention || true",
+            "shell": "bash"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "[ -n \"$TERAX_TERMINAL\" ] && \"/c/Program Files/nodejs/node\" \"$HOME/.claude/hooks/terax-notify.js\" finished || true",
+            "shell": "bash"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "[ -n \"$TERAX_TERMINAL\" ] && \"/c/Program Files/nodejs/node\" \"$HOME/.claude/hooks/terax-notify.js\" working || true",
+            "shell": "bash"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash|Read|Grep|Glob|Edit|Write|MultiEdit|NotebookEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"/c/Program Files/nodejs/node\" \"$HOME/.claude/hooks/guard.js\"",
+            "shell": "bash",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"/c/Program Files/nodejs/node\" \"$HOME/.claude/hooks/ruff-check.js\"",
+            "shell": "bash",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "node C:/Users/civitamatteo/.claude/statusline/cockpit.js",
+    "refreshInterval": 2
+  },
+  "subagentStatusLine": {
+    "type": "command",
+    "command": "node C:/Users/civitamatteo/.claude/statusline/cockpit.js --subagent"
+  },
+  "enabledPlugins": {
+    "cortex@cortex-marketplace": true
+  },
+  "extraKnownMarketplaces": {
+    "cortex-marketplace": {
+      "source": {
+        "source": "directory",
+        "path": "C:\\Users\\civitamatteo\\Project\\Tool\\cortex"
+      }
+    }
+  },
+  "spinnerTipsEnabled": false,
+  "spinnerVerbs": {
+    "mode": "append",
+    "verbs": [
+      "Ragionando",
+      "Consultando il vault",
+      "Rimuginando",
+      "Mettendo ordine",
+      "Collegando i puntini"
+    ]
+  },
+  "effortLevel": "medium",
+  "modelSettings": {
+    "claude-opus-5-5": {
+      "effortLevel": "high"
+    }
+  },
+  "pluginConfigs": {},
+  "autoMemoryEnabled": false,
+  "theme": "dark"
+}

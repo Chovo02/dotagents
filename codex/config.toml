@@ -1,0 +1,63 @@
+# Base portabile di ~/.codex/config.toml (MAT-27).
+# Copiata da install.ps1/sh SOLO se il file non esiste: non è un symlink, perché Codex
+# vi scrive [projects.*] (trust) e path locali. Qui solo chiavi valide su ogni macchina,
+# niente segreti, niente path assoluti, niente [projects.*].
+# Le sezioni sotto si riempiono con le sub-issue di MAT-20: MCP (MAT-30), approval e sandbox (MAT-35).
+
+model_reasoning_effort = "medium"
+
+# --- Sicurezza (MAT-35) ---
+# Default espliciti: conferme su richiesta, scritture solo nel workspace.
+# Con [windows] sandbox / approvals_reviewer locali (non in base) resta valido quello della macchina.
+approval_policy = "on-request"
+sandbox_mode = "workspace-write"
+
+# Hook guard.js: stessa rete di sicurezza di Claude (rm -rf, git push --force, reset --hard, clean -f,
+# file segreti nei comandi shell). Il file è linkato da install.ps1/sh in <codex>/hooks/guard.js.
+# Al primo avvio Codex chiede di rivedere l'hook con /hooks (trust legato all'hash).
+# Copre solo la shell (`Bash`): apply_patch non espone un file_path, quindi niente controllo sui path segreti.
+# Regole complementari: <codex>/rules/dotagents.rules (execpolicy, prefisso posizionale).
+[features]
+hooks = true
+
+[[hooks.PreToolUse]]
+matcher = "^Bash$"
+
+[[hooks.PreToolUse.hooks]]
+type = "command"
+command = 'node "$HOME/.codex/hooks/guard.js"'
+commandWindows = 'node "%USERPROFILE%\.codex\hooks\guard.js"'
+timeout = 10
+statusMessage = "guard.js"
+
+# --- MCP ---
+# Configurazione personale: un solo contesto (niente profili). Solo server remoti o locali, nessun token nel repo.
+# Linear (issue): login una tantum con `codex mcp login linear`.
+# Context7: non verificato se serva il login (potrebbe funzionare anonimo o con API key). Provalo prima.
+[mcp_servers.linear]
+url = "https://mcp.linear.app/mcp"
+
+[mcp_servers.context7]
+url = "https://mcp.context7.com/mcp"
+
+[mcp_servers.excalidraw]
+url = "https://mcp.excalidraw.com/mcp"
+
+# Obsidian Local REST API del Vault PERSONALE (una porta diversa per ogni vault; quello di lavoro usa 27223).
+# Token: setx OBSIDIAN_API_KEY_PERSONAL <token>  (mai nel repo)
+[mcp_servers.obsidian]
+url = "http://127.0.0.1:27123/mcp/"
+bearer_token_env_var = "OBSIDIAN_API_KEY_PERSONAL"
+
+[shell_environment_policy.set]
+CORTEX_PROFILE = "personal"
+# Per macchina, fuori dal repo: percorso del Vault personale (per gli script del plugin Cortex).
+# CORTEX_VAULT_PATH = "C:\Users\<utente>\Documents\vault-personale"
+
+# --- TUI (MAT-37) ---
+# Solo personalizzazioni native: niente colori della UI, status line con comando esterno né pannelli (vedi docs/codex-customization-gaps.md).
+# `notify` NON è in base: va impostato per macchina (la config locale lo punta già al binario dell'app desktop).
+[tui]
+theme = "dracula"                  # syntax highlighting di codice e diff (vicino al viola di cortex-dark)
+notifications = true               # metodo e condizione restano `auto` / `unfocused`
+status_line = ["model-with-reasoning", "current-dir", "git-branch", "context-used", "five-hour-limit", "weekly-limit"]

@@ -1,0 +1,60 @@
+# Regole execpolicy di Codex (MAT-35), equivalenti ai comandi bloccati da claude/hooks/guard.js.
+# Il file ha un nome proprio per non toccare ~/.codex/rules/default.rules, dove Codex scrive
+# i prefissi approvati. Il matching è per prefisso posizionale: `git push origin main --force`
+# NON combacia; quel caso lo copre l'hook guard.js (regex sull'intera riga).
+# Test: codex execpolicy check --pretty --rules codex/rules/dotagents.rules -- rm -rf x
+
+prefix_rule(
+    pattern = ["rm", ["-rf", "-fr", "-Rf", "-fR", "-rfv", "-Rfv", "-frv", "-fRv"]],
+    decision = "forbidden",
+    justification = "rm ricorsivo+force bloccato: usa una rimozione mirata.",
+    match = ["rm -rf /tmp/x", "rm -fr build", "rm -rfv x"],
+    not_match = ["rm file.txt", "rm -r dir"],
+)
+
+prefix_rule(
+    pattern = ["rm", ["-r", "-R"], "-f"],
+    decision = "forbidden",
+    justification = "rm ricorsivo+force bloccato: usa una rimozione mirata.",
+    match = ["rm -r -f x"],
+    not_match = ["rm -r dir"],
+)
+
+prefix_rule(
+    pattern = ["rm", "-f", ["-r", "-R"]],
+    decision = "forbidden",
+    justification = "rm ricorsivo+force bloccato: usa una rimozione mirata.",
+    match = ["rm -f -r x"],
+    not_match = ["rm -f file"],
+)
+
+prefix_rule(
+    pattern = ["rm", "--recursive", "--force"],
+    decision = "forbidden",
+    justification = "rm ricorsivo+force bloccato: usa una rimozione mirata.",
+    match = ["rm --recursive --force x"],
+)
+
+prefix_rule(
+    pattern = ["git", "push", ["--force", "-f", "-fu"]],
+    decision = "forbidden",
+    justification = "git push --force bloccato (usa --force-with-lease solo se serve davvero).",
+    match = ["git push --force", "git push -f"],
+    not_match = ["git push origin main", "git push --force-with-lease"],
+)
+
+prefix_rule(
+    pattern = ["git", "reset", "--hard"],
+    decision = "forbidden",
+    justification = "git reset --hard scarta il lavoro non committato.",
+    match = ["git reset --hard HEAD~1"],
+    not_match = ["git reset --soft HEAD~1"],
+)
+
+prefix_rule(
+    pattern = ["git", "clean", ["-f", "-fd", "-fdx", "-xdf", "-df", "-fx", "-xfd", "-ffd", "--force"]],
+    decision = "forbidden",
+    justification = "git clean -f cancella file non tracciati.",
+    match = ["git clean -fd"],
+    not_match = ["git clean -n"],
+)

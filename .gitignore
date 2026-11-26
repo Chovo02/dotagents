@@ -1,0 +1,32 @@
+# segreti / account
+.credentials.json
+.claude.json
+settings.local.json
+# runtime
+history.jsonl
+projects/
+sessions/
+session-env/
+plugins/
+backups/
+file-history/
+shell-snapshots/
+paste-cache/
+**/data/
+node_modules/
+daemon/
+policy-limits.json
+ponytail-modes/
+usage-report/
+scheduled_tasks.lock
+*.bak-*
+
+# codex: segreti e runtime
+codex/auth.json
+codex/sessions/
+codex/hooks.json
+
+# skill: runtime locale dentro le cartelle collegate
+claude/skills/synced/
+codex/skills/.system/
+backup/

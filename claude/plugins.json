@@ -1,0 +1,11 @@
+{
+  "marketplaces": {
+    "cortex-marketplace": {
+      "source": "directory",
+      "path": "C:\\Users\\civitamatteo\\Project\\Tool\\cortex"
+    }
+  },
+  "enabledPlugins": {
+    "cortex@cortex-marketplace": true
+  }
+}
